@@ -34,5 +34,19 @@
 
     "layout/page",
     "layout/archive",
-    "layout/sidebar"
+    "layout/sidebar";
+
+   /* ===== Matrix style ===== */
+html, body, .masthead, .page__footer, .greedy-nav, .greedy-nav .hidden-links, .page__content {
+  background-color: #000 !important;
+  color: #c8c8c8 !important;
+}
+h1, h2, h3, h4, .page__title, .author__name, .masthead__menu-item a, .greedy-nav a {
+  font-family: "Consolas", "Courier New", monospace !important;
+  color: #00ff41 !important;
+}
+a { color: #00ff41 !important; }
+a:hover { color: #ffffff !important; }
+.author__avatar img { border-color: #00ff41 !important; }
+.masthead, .page__footer, hr { border-color: #003b00 !important; }
 ;
