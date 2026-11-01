@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HE-LDH 3D Model</title>
+<style>
+  :root{--bg:#000;--fg:#c8c8c8;--accent:#00ff41;--dim:#0a3d14;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);
+    font-family:Consolas,"Courier New",monospace;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .panel{position:fixed;left:12px;top:12px;max-width:min(340px,calc(100% - 24px));
+    background:rgba(0,0,0,.75);border:1px solid var(--dim);padding:10px 12px;
+    font-size:13px;line-height:1.45}
+  .panel h1{margin:0 0 6px;font-size:15px;color:var(--accent);font-weight:700}
+  #step{color:var(--accent);margin-top:8px;min-height:2.9em}
+  .legend{position:fixed;right:12px;top:12px;background:rgba(0,0,0,.75);
+    border:1px solid var(--dim);padding:8px 10px;font-size:12px}
+  .legend b{color:var(--accent);font-weight:400;display:block;margin-top:4px}
+  .legend div{display:flex;align-items:center;gap:6px;margin:2px 0}
+  .sw{width:11px;height:11px;display:inline-block;border:1px solid #333;flex:none}
+  .sw.r{border-radius:50%}
+  .controls{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:8px}
+  button{font:inherit;font-size:13px;background:#000;color:var(--accent);
+    border:1px solid var(--accent);padding:6px 12px;cursor:pointer;white-space:nowrap}
+  button:hover{background:var(--accent);color:#000}
+  .hint{position:fixed;right:12px;bottom:16px;font-size:11px;opacity:.55}
+  .lbl{position:fixed;display:none;pointer-events:none;transform:translate(14px,-50%);
+    background:rgba(0,0,0,.8);border-left:2px solid var(--accent);padding:4px 8px;
+    font-size:12px;line-height:1.35;max-width:230px}
+  .lbl b{color:var(--accent);font-weight:700}
+  .legend{display:none}
+  #mech{display:none;margin-top:8px;border-top:1px solid var(--dim);padding-top:8px;
+    max-height:calc(100vh - 160px);overflow-y:auto}
+  #mech ol{margin:4px 0 0;padding-left:18px}
+  #mech li{margin:5px 0}
+  #mech b{color:var(--accent);font-weight:700}
+  #mech .note{opacity:.7;font-size:11px;margin-top:6px}
+  button.on{background:var(--accent);color:#000}
+  #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;color:var(--accent)}
+  @media (max-width:640px){
+    .legend{top:auto;bottom:58px;font-size:11px}
+    .panel{font-size:12px}
+    .hint{display:none}
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="panel">
+  <h1>HELDH(C)@NBC &mdash; MgAlZnNiCo high-entropy LDH on N-doped biochar</h1>
+  <div>Brucite-like [M(OH)<sub>6</sub>] octahedral layers sharing five cations, with
+  CO<sub>3</sub><sup>2&minus;</sup> and H<sub>2</sub>O in the interlayer galleries,
+  grown on an N-doped biochar support.</div>
+  <div id="step"></div>
+  <div id="mech">
+    <b>Why does HELDH@NBC capture PFHxA?</b> (proposed)
+    <ol>
+      <li><b>Electrostatic attraction</b> &mdash; Al<sup>3+</sup> in the hydroxide layers gives them a permanent positive charge, while PFHxA (a strong perfluorinated acid) is present as the carboxylate anion C<sub>5</sub>F<sub>11</sub>COO<sup>&minus;</sup> in water.</li>
+      <li><b>Anion exchange &amp; surface binding</b> &mdash; the carboxylate head can exchange with loosely held anions at layer surfaces and edges and hydrogen-bond to surface M&ndash;OH groups.</li>
+      <li><b>Hydrophobic / fluorophilic contact</b> &mdash; the C<sub>5</sub>F<sub>11</sub> tail prefers non-polar surfaces such as the carbon network of biochar.</li>
+      <li><b>N-doped biochar</b> &mdash; N sites add basic/positive sites and electrical conductivity, so binding events reach the electrode.</li>
+      <li><b>Sensing signal</b> &mdash; PFHxA at the interface changes interfacial charge transfer, read out by EIS (R<sub>ct</sub>) with a redox probe.</li>
+    </ol>
+    <div class="note">Mechanism under investigation; schematic not to scale.</div>
+  </div>
+</div>
+
+<div class="legend">
+  <b>Octahedral cations</b>
+  <div><span class="sw" style="background:#8ad04a"></span>Mg</div>
+  <div><span class="sw" style="background:#b0b8c4"></span>Al</div>
+  <div><span class="sw" style="background:#7f84d6"></span>Zn</div>
+  <div><span class="sw" style="background:#3fd0c9"></span>Ni</div>
+  <div><span class="sw" style="background:#f08aa6"></span>Co</div>
+  <b>Interlayer</b>
+  <div><span class="sw r" style="background:#ff3b3b"></span>O</div>
+  <div><span class="sw r" style="background:#9a9a9a"></span>C (CO<sub>3</sub><sup>2&minus;</sup>)</div>
+  <div><span class="sw r" style="background:#ffffff"></span>H (H<sub>2</sub>O)</div>
+  <b>PFHxA</b>
+  <div><span class="sw r" style="background:#e8e86a"></span>F</div>
+  <b>Biochar</b>
+  <div><span class="sw r" style="background:#9a9a9a"></span>C</div>
+  <div><span class="sw r" style="background:#3a7bff"></span>N dopant</div>
+</div>
+
+<div class="lbl" id="lblCat"><b>Cation layer (+)</b><br>[M<sup>2+</sup><sub>1&minus;x</sub>M<sup>3+</sup><sub>x</sub>(OH)<sub>2</sub>]<sup>x+</sup><br>M = Mg, Al, Zn, Ni, Co (edge-sharing octahedra)</div>
+<div class="lbl" id="lblAn"><b>Anion interlayer (&minus;)</b><br>CO<sub>3</sub><sup>2&minus;</sup> + H<sub>2</sub>O<br>balances the positive layer charge</div>
+<div class="lbl" id="lblBc"><b>N-doped biochar</b><br>conductive carbon support</div>
+
+<div class="controls">
+  <button id="next">Separate layers</button>
+  <button id="mechBtn">Mechanism</button>
+  <button id="reset">Reassemble</button>
+</div>
+<div class="hint">drag: rotate &middot; scroll: zoom &middot; click: next step</div>
+<div id="err">3D view needs WebGL and an internet connection.</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  if (typeof THREE === 'undefined') {
+    document.getElementById('err').style.display = 'flex';
+    return;
+  }
+
+  // ---------- settings ----------
+  const L = 4;              // number of hydroxide layers
+  const A = 1.0;            // in-plane lattice parameter (scaled)
+  const R = A / Math.SQRT2; // octahedron vertex distance for edge sharing
+  const DISC = 4.3;         // radius of the visible slab
+  const P = 2.6;            // basal spacing (layer pitch, ~0.76 nm scaled)
+  const Y0 = 1.4;           // first LDH layer above biochar
+  const G = 3.2;            // extra gap opened per peel
+
+  const METALS = [0x8ad04a, 0xb0b8c4, 0x7f84d6, 0x3fd0c9, 0xf08aa6]; // Mg Al Zn Ni Co
+
+  let seed = 11;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+
+  // ---------- renderer / scene ----------
+  const canvas = document.getElementById('c');
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  } catch (e) {
+    document.getElementById('err').style.display = 'flex';
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 500);
+  camera.position.set(13, 11, 15);
+
+  const controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.6;
+  controls.minDistance = 6;
+  controls.maxDistance = 60;
+  controls.target.set(0, 4.5, 0);
+  controls.addEventListener('start', () => { controls.autoRotate = false; });
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const key = new THREE.DirectionalLight(0xffffff, 0.85);
+  key.position.set(10, 20, 8);
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0x88ffaa, 0.3);
+  rim.position.set(-10, -6, -8);
+  scene.add(rim);
+
+  // ---------- octahedron geometry (3-fold axis along y, edges on lattice) ----------
+  const octGeo = new THREE.OctahedronGeometry(R * 0.97);
+  const q = new THREE.Quaternion().setFromUnitVectors(
+    new THREE.Vector3(1, 1, 1).normalize(), new THREE.Vector3(0, 1, 0));
+  octGeo.applyQuaternion(q);
+  const v = new THREE.Vector3(R, 0, 0).applyQuaternion(q);
+  octGeo.rotateY(Math.atan2(v.z, v.x) - Math.PI / 6);
+  const edgeGeo = new THREE.EdgesGeometry(octGeo);
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x0b2a12 });
+
+  const metalMats = METALS.map(c => new THREE.MeshStandardMaterial({
+    color: c, roughness: 0.45, metalness: 0.1, flatShading: true,
+    transparent: true, opacity: 0.93
+  }));
+
+  const neutralMat = new THREE.MeshStandardMaterial({
+    color: 0x2fae5a, roughness: 0.45, metalness: 0.1, flatShading: true,
+    transparent: true, opacity: 0.93
+  });
+  const octMeshes = [];
+  const W = [1, 1, 0.5, 0.75, 0.75];             // relative Mg:Al:Zn:Ni:Co
+  const WS = W.reduce((a, b) => a + b, 0);
+  function pickMetal() {
+    let r = rnd() * WS;
+    for (let i = 0; i < W.length; i++) { r -= W[i]; if (r <= 0) return i; }
+    return W.length - 1;
+  }
+
+  // triangular lattice sites inside a disc
+  const sites = [];
+  for (let i = -8; i <= 8; i++) {
+    for (let j = -8; j <= 8; j++) {
+      const x = A * (i + j * 0.5), z = A * (j * Math.sqrt(3) / 2);
+      if (Math.hypot(x, z) <= DISC) sites.push([x, z]);
+    }
+  }
+
+  function makeLayer() {
+    const g = new THREE.Group();
+    sites.forEach(([x, z]) => {
+      const m = new THREE.Mesh(octGeo, neutralMat);
+      m.userData.metal = pickMetal();
+      octMeshes.push(m);
+      m.position.set(x, 0, z);
+      g.add(m);
+      const e = new THREE.LineSegments(edgeGeo, edgeMat);
+      e.position.set(x, 0, z);
+      g.add(e);
+    });
+    return g;
+  }
+
+  // ---------- interlayer: carbonate + water ----------
+  const sph = new THREE.SphereGeometry(1, 16, 12);
+  const matO = new THREE.MeshStandardMaterial({ color: 0xff3b3b, roughness: 0.4 });
+  const matC = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, roughness: 0.5 });
+  const matH = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+
+  function atom(mat, r, x, y, z, parent) {
+    const m = new THREE.Mesh(sph, mat);
+    m.scale.setScalar(r);
+    m.position.set(x, y, z);
+    parent.add(m);
+  }
+
+  function randomSpot(taken, minD) {
+    for (let t = 0; t < 200; t++) {
+      const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * (DISC - 0.6);
+      const x = r * Math.cos(a), z = r * Math.sin(a);
+      if (taken.every(p => Math.hypot(p[0] - x, p[1] - z) > minD)) {
+        taken.push([x, z]);
+        return [x, z];
+      }
+    }
+    return null;
+  }
+
+  function makeGallery() {
+    const g = new THREE.Group();
+    const taken = [];
+    for (let n = 0; n < 7; n++) {           // CO3(2-), flat in the gallery
+      const s = randomSpot(taken, 1.1); if (!s) break;
+      const rot = rnd() * Math.PI * 2;
+      atom(matC, 0.14, s[0], 0, s[1], g);
+      for (let k = 0; k < 3; k++) {
+        const a = rot + k * 2 * Math.PI / 3;
+        atom(matO, 0.19, s[0] + 0.42 * Math.cos(a), 0, s[1] + 0.42 * Math.sin(a), g);
+      }
+    }
+    for (let n = 0; n < 9; n++) {           // H2O
+      const s = randomSpot(taken, 0.95); if (!s) break;
+      const y = (rnd() - 0.5) * 0.5, rot = rnd() * Math.PI * 2;
+      atom(matO, 0.17, s[0], y, s[1], g);
+      [-0.91, 0.91].forEach(d => {
+        const a = rot + d;
+        atom(matH, 0.1, s[0] + 0.28 * Math.cos(a), y + 0.12, s[1] + 0.28 * Math.sin(a), g);
+      });
+    }
+    return g;
+  }
+
+  // ---------- N-doped biochar (wavy honeycomb sheet) ----------
+  function makeBiochar() {
+    const g = new THREE.Group();
+    const b = 0.42, pts = [];
+    const a1 = [Math.sqrt(3) * b, 0], a2 = [Math.sqrt(3) * b / 2, 1.5 * b];
+    const basis = [[0, 0], [Math.sqrt(3) * b / 2, b / 2]];
+    for (let i = -16; i <= 16; i++) {
+      for (let j = -16; j <= 16; j++) {
+        basis.forEach(([bx, bz]) => {
+          const x = i * a1[0] + j * a2[0] + bx, z = i * a1[1] + j * a2[1] + bz;
+          if (Math.hypot(x, z) <= DISC + 0.6) {
+            pts.push(new THREE.Vector3(x, 0.12 * Math.sin(x * 1.1) * Math.cos(z * 0.9), z));
+          }
+        });
+      }
+    }
+    const inst = new THREE.InstancedMesh(sph, new THREE.MeshStandardMaterial({ roughness: 0.5 }), pts.length);
+    const mtx = new THREE.Matrix4(), col = new THREE.Color();
+    pts.forEach((p, k) => {
+      mtx.makeScale(0.085, 0.085, 0.085).setPosition(p);
+      inst.setMatrixAt(k, mtx);
+      inst.setColorAt(k, col.setHex(rnd() < 0.08 ? 0x3a7bff : 0x9a9a9a));
+    });
+    g.add(inst);
+
+    const seg = [];
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        if (pts[i].distanceTo(pts[j]) < b * 1.08) seg.push(pts[i], pts[j]);
+      }
+    }
+    g.add(new THREE.LineSegments(
+      new THREE.BufferGeometry().setFromPoints(seg),
+      new THREE.LineBasicMaterial({ color: 0x5c5c5c })));
+    return g;
+  }
+
+  // ---------- assemble stack ----------
+  const biochar = makeBiochar();
+  scene.add(biochar);
+
+  const layers = [], galleries = [];
+  for (let i = 0; i < L; i++) {
+    const g = makeLayer();
+    g.userData.base = Y0 + i * P;
+    g.position.y = g.userData.base;
+    scene.add(g);
+    layers.push(g);
+  }
+  for (let i = 0; i < L - 1; i++) {
+    const g = makeGallery();
+    g.userData.base = Y0 + i * P + P / 2;
+    g.position.y = g.userData.base;
+    scene.add(g);
+    galleries.push(g);
+  }
+
+  // ---------- PFHxA molecules (C5F11-COO-) ----------
+  const matF = new THREE.MeshStandardMaterial({ color: 0xe8e86a, roughness: 0.4 });
+  function makePFHxA() {
+    const g = new THREE.Group();
+    atom(matC, 0.13, 0, 0, 0, g);                       // carboxyl C
+    atom(matO, 0.17, -0.22, -0.28, 0, g);               // COO- oxygens, pointing down
+    atom(matO, 0.17, 0.22, -0.28, 0, g);
+    for (let i = 1; i <= 5; i++) {                      // CF2 x4 + CF3
+      const x = (i % 2 ? 0.18 : -0.18), y = 0.38 * i;
+      atom(matC, 0.13, x, y, 0, g);
+      atom(matF, 0.15, x, y, 0.32, g);
+      atom(matF, 0.15, x, y, -0.32, g);
+      if (i === 5) atom(matF, 0.15, x + (x > 0 ? 0.3 : -0.3), y + 0.15, 0, g);
+    }
+    return g;
+  }
+  const pfas = [];
+  const topLayer = layers[L - 1];
+  const spots = [];
+  for (let n = 0; n < 7; n++) {
+    const s = randomSpot(spots, 1.3); if (!s) break;
+    const m = makePFHxA();
+    m.position.set(s[0], 7, s[1]);
+    m.rotation.y = rnd() * Math.PI * 2;
+    m.userData.delay = n * 0.15;
+    m.visible = false;
+    topLayer.add(m);
+    pfas.push(m);
+  }
+  let mech = false, mechT = 0;
+  const mechEl = document.getElementById('mech');
+  const mechBtn = document.getElementById('mechBtn');
+
+  // ---------- step logic ----------
+  // 0 = intact block, 1 = cation / anion layers separated, 2 = identify cations and anions
+  let k = 0;
+  const stepEl = document.getElementById('step');
+  const nextBtn = document.getElementById('next');
+  const legendEl = document.querySelector('.legend');
+  const labels = [
+    { el: document.getElementById('lblCat'), at: () => new THREE.Vector3(DISC * 0.85, layers[L - 1].position.y, 0) },
+    { el: document.getElementById('lblAn'),  at: () => new THREE.Vector3(DISC * 0.85, galleries[L - 2].position.y, 0) },
+    { el: document.getElementById('lblBc'),  at: () => new THREE.Vector3(DISC * 0.85, 0, 0) }
+  ];
+
+  function update() {
+    const split = k >= 1 || mech;
+    const colored = k === 2 || mech;
+    layers.forEach((g, i) => { g.userData.target = g.userData.base + (split ? G * (i + 1) : 0); });
+    galleries.forEach((g, i) => { g.userData.target = g.userData.base + (split ? G * (i + 1) + G / 2 : 0); });
+    octMeshes.forEach(m => { m.material = colored ? metalMats[m.userData.metal] : neutralMat; });
+    pfas.forEach(m => { m.visible = mech; if (!mech) m.position.y = 7; });
+    mechEl.style.display = mech ? 'block' : 'none';
+    stepEl.style.display = mech ? 'none' : 'block';
+    mechBtn.classList.toggle('on', mech);
+    stepEl.textContent = [
+      'Step 1/3: intact composite. Click to separate the layers.',
+      'Step 2/3: cation layers and anion interlayers separated. Click to identify them.',
+      'Step 3/3: cations and anions identified. Click to reassemble.'
+    ][k];
+    nextBtn.textContent = ['Separate layers', 'Identify ions', 'Reassemble'][k];
+    legendEl.style.display = colored ? 'block' : 'none';
+    labels.forEach(l => { l.el.style.display = (k === 2 && !mech) ? 'block' : 'none'; });
+  }
+
+  function advance() { if (mech) { mech = false; } else { k = (k + 1) % 3; } update(); }
+  function reset() { k = 0; mech = false; update(); }
+  mechBtn.addEventListener('click', () => { mech = !mech; mechT = 0; update(); });
+
+  nextBtn.addEventListener('click', advance);
+  document.getElementById('reset').addEventListener('click', reset);
+
+  let down = null;
+  canvas.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+  canvas.addEventListener('pointerup', e => {
+    if (!down) return;
+    const dx = e.clientX - down[0], dy = e.clientY - down[1];
+    down = null;
+    if (dx * dx + dy * dy < 25) advance();
+  });
+
+  update();
+
+  // ---------- resize + loop ----------
+  function resize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov = w / h < 1 ? 58 : 40;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const all = layers.concat(galleries);
+  function loop() {
+    let top = 0;
+    all.forEach(g => {
+      g.position.y += (g.userData.target - g.position.y) * 0.1;
+      top = Math.max(top, g.position.y);
+    });
+    controls.target.y += (top / 2 - controls.target.y) * 0.05;
+    if (mech) {
+      mechT += 1 / 60;
+      pfas.forEach(m => {
+        if (mechT > m.userData.delay) m.position.y += (0.72 - m.position.y) * 0.04;
+      });
+    }
+    controls.update();
+    if (k === 2 && !mech) {
+      labels.forEach(l => {
+        const p = l.at().project(camera);
+        l.el.style.left = ((p.x + 1) / 2 * window.innerWidth) + 'px';
+        l.el.style.top = ((1 - p.y) / 2 * window.innerHeight) + 'px';
+      });
+    }
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>
