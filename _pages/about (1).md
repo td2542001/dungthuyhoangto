@@ -38,7 +38,6 @@ Conferences
 
 <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;align-items:start;margin-bottom:16px">
 <a href="{{ '/images/icas2024-poster.jpg' | relative_url }}"><img src="{{ '/images/icas2024-poster.jpg' | relative_url }}" alt="Poster presentation at ICAS 2024" style="border:1px solid #0a3d14"></a>
-<a href="{{ '/images/icas2024-award-poster.jpg' | relative_url }}"><img src="{{ '/images/icas2024-award-poster.jpg' | relative_url }}" alt="Poster Design Award, ICAS 2024" style="border:1px solid #0a3d14"></a>
 <a href="{{ '/images/icas2024-award-oral.jpg' | relative_url }}"><img src="{{ '/images/icas2024-award-oral.jpg' | relative_url }}" alt="Oral Presentation Award, ICAS 2024" style="border:1px solid #0a3d14"></a>
 </div>
 
