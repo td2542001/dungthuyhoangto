@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixel Lab</title>
+<style>
+  :root{--g:#00ff41;--bg:#000;--dim:#0a3d14}
+  html,body{margin:0;background:var(--bg);font-family:"Courier New",Consolas,monospace;color:#d8ffe0;overflow:hidden}
+  .wrap{position:relative;width:100%;max-width:960px;margin:0 auto;aspect-ratio:16/9}
+  canvas{display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:pointer}
+  .box{position:absolute;left:3%;right:3%;bottom:4%;background:rgba(0,0,0,.92);border:3px solid var(--g);
+    box-shadow:0 0 0 3px #000,0 0 14px rgba(0,255,65,.35);padding:10px 14px 12px;min-height:58px}
+  .name{position:absolute;top:-17px;left:12px;background:var(--g);color:#000;font-weight:700;font-size:12px;padding:2px 10px;letter-spacing:1px}
+  .txt{font-size:clamp(11px,1.9vw,16px);line-height:1.45;white-space:pre-wrap}
+  .cur{display:inline-block;width:.6em;height:1em;background:var(--g);vertical-align:-2px;animation:b 1s steps(1) infinite}
+  @keyframes b{50%{opacity:0}}
+  .hint{position:absolute;right:10px;bottom:6px;font-size:10px;color:var(--g);opacity:.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <canvas id="c" width="192" height="108" aria-label="Pixel art lab scene. Click the objects to read short notes."></canvas>
+  <div class="box"><span class="name">DUNG</span><div class="txt" id="t"></div><span class="hint">click an object ▸</span></div>
+</div>
+<script>
+(function(){
+const c=document.getElementById('c'),x=c.getContext('2d');
+const W=192,H=108;
+const P={
+  bg:'#06140b',wall:'#0b2414',wall2:'#0e2c18',floor:'#10301a',floor2:'#0c2614',
+  bench:'#2b4a36',bench2:'#1d3627',leg:'#173022',
+  g:'#00ff41',g2:'#00b82f',g3:'#0a6b25',
+  glass:'#bfe8cc',liquid:'#3dff7a',liquid2:'#8a7cff',liquid3:'#ff6fae',
+  skin:'#f2c6a6',skin2:'#d9a283',hair:'#1a1012',hair2:'#2e1d22',shirt:'#f4f4f4',shirt2:'#cfd6d1',pants:'#151a24',
+  glassesF:'#000',scr:'#021a08',metal:'#7c8a83',metal2:'#4b5953',cat:'#e0a050',cat2:'#b07432',white:'#ffffff',red:'#ff4040'
+};
+function r(px,py,w,h,col){x.fillStyle=col;x.fillRect(px,py,w,h);}
+
+// clickable zones -> lines
+const zones=[
+  {n:'pot',x:118,y:34,w:34,h:26,lines:[
+    "Potentiostat online. Running EIS...",
+    "Expectation: Rct changes after PFAS.\nReality: Rct does whatever it wants.",
+    "Nyquist plot looks like a semicircle. Good day."]},
+  {n:'beak',x:38,y:44,w:40,h:20,lines:[
+    "Five cations, one lattice: Mg, Al, Zn, Ni, Co.\nMy material is high-entropy. So is my lab bench.",
+    "Co-precipitation at pH 10. Dropwise. Patiently. Very patiently."]},
+  {n:'girl',x:84,y:40,w:22,h:44,lines:[
+    "Hi! I'm Dung. I design inorganic materials for cleaner water.",
+    "Thanks for scrolling all the way down here!",
+    "Looking for a PhD in Fall 2027. Let's talk science!"]},
+  {n:'cat',x:160,y:76,w:20,h:14,lines:[
+    "This is the lab cat. It approves all XRD patterns.",
+    "The cat has no publications yet, but strong opinions."]},
+  {n:'win',x:12,y:10,w:30,h:22,lines:[
+    "Outside: a sunny day.\nInside: polishing a glassy carbon electrode. Again."]},
+  {n:'board',x:58,y:10,w:44,h:20,lines:[
+    "[M²⁺₁₋ₓM³⁺ₓ(OH)₂]ˣ⁺ · CO₃²⁻ · mH₂O\nThe positive layers hold the anions in between."]}
+];
+const idx={};
+
+let t=0,bubbles=[];
+function scene(){
+  // wall
+  r(0,0,W,72,P.wall);
+  for(let i=0;i<W;i+=16) r(i,0,1,72,P.wall2);
+  r(0,70,W,2,P.g3);
+  // floor checker
+  for(let yy=72;yy<H;yy+=6)for(let xx=0;xx<W;xx+=12) r(xx+((yy/6)%2?6:0),yy,6,6,P.floor2), r(xx+((yy/6)%2?0:6),yy,6,6,P.floor);
+  // window
+  r(12,10,30,22,P.g3); r(14,12,26,18,'#0d3b5a'); r(14,24,26,6,'#1f6b3a');
+  r(26,12,1,18,P.g3); r(14,20,26,1,P.g3);
+  r(31,14,4,4,'#ffe14a');
+  // whiteboard with LDH formula
+  r(58,10,44,20,P.metal2); r(59,11,42,18,'#dfe9e2');
+  for(let i=0;i<5;i++){r(62+i*7,15,5,3,['#8ad04a','#b0b8c4','#7f84d6','#3fd0c9','#f08aa6'][i]);}
+  for(let i=0;i<5;i++)r(62+i*7,19,2,2,P.red);
+  for(let i=0;i<5;i++){r(62+i*7,23,5,3,['#f08aa6','#8ad04a','#3fd0c9','#b0b8c4','#7f84d6'][i]);}
+  // shelf with bottles
+  r(110,18,50,2,P.bench2);
+  [[112,'#3dff7a'],[120,'#8a7cff'],[128,'#ff6fae'],[136,'#ffe14a'],[146,'#bfe8cc']].forEach(([bx,cl],i)=>{r(bx,10,5,8,P.glass);r(bx,13,5,5,cl);r(bx+1,8,3,2,P.metal);});
+  // bench
+  r(20,60,152,6,P.bench); r(20,66,152,2,P.bench2);
+  r(24,68,4,22,P.leg); r(164,68,4,22,P.leg); r(96,68,4,22,P.leg);
+  // beakers
+  beaker(40,46,P.liquid); beaker(54,48,P.liquid2,10,12); beaker(66,50,P.liquid3,8,10);
+  // electrode in beaker 1
+  r(45,38,2,12,P.metal); r(44,36,4,2,P.g);
+  // potentiostat + screen with nyquist
+  r(118,34,34,26,P.metal2); r(120,36,30,18,P.scr);
+  // axes
+  r(122,51,26,1,P.g3); r(122,38,1,14,P.g3);
+  // semicircle animated
+  const n=Math.min(24,Math.floor((t/4)%40));
+  for(let i=0;i<n;i++){const a=Math.PI*(i/23);const px=124+Math.round((1-Math.cos(a))*10);const py=50-Math.round(Math.sin(a)*9);r(px,py,1,1,P.g);}
+  r(122,56,4,2,(Math.floor(t/20)%2)?P.g:P.g3); r(128,56,4,2,P.red);
+  // cable
+  r(112,52,6,1,P.metal); r(48,37,64,1,P.metal2);
+  // cat
+  catSprite(160,80);
+  // girl
+  girl(86,42);
+  // bubbles
+  if(t%9===0) bubbles.push({x:42+Math.floor(Math.random()*8),y:54,l:0});
+  bubbles=bubbles.filter(b=>b.l<14);
+  bubbles.forEach(b=>{r(b.x,b.y-b.l,1,1,P.white);b.l+= (t%3===0)?1:0;});
+  // matrix rain sparkle on wall
+  for(let i=0;i<6;i++){const col=(i*31+Math.floor(t/3))%W;const row=(i*13+t)%70;r(col,row,1,2,'rgba(0,255,65,.25)');}
+  // highlight hovered
+  if(hover){x.strokeStyle=P.g;x.lineWidth=1;x.strokeRect(hover.x-.5,hover.y-.5,hover.w+1,hover.h+1);}
+}
+function beaker(bx,by,cl,w=12,h=14){
+  r(bx,by,w,h,P.glass); r(bx+1,by+Math.floor(h*0.35),w-2,h-Math.floor(h*0.35)-1,cl);
+  r(bx-1,by,1,2,P.glass); r(bx+w,by,1,2,P.glass);
+  r(bx+2,by+Math.floor(h*0.35)+1,1,h-Math.floor(h*0.35)-3,'rgba(255,255,255,.45)');
+}
+function girl(gx,gy){
+  const bob=(Math.floor(t/30)%2);
+  const y0=gy+bob;
+  // hair back
+  r(gx+3,y0,14,16,P.hair); r(gx+2,y0+4,16,14,P.hair);
+  // face
+  r(gx+5,y0+4,10,10,P.skin); r(gx+5,y0+12,10,2,P.skin2);
+  // fringe
+  r(gx+5,y0+3,10,3,P.hair2); r(gx+4,y0+3,2,8,P.hair);r(gx+14,y0+3,2,8,P.hair);
+  // glasses
+  r(gx+5,y0+7,4,3,P.glassesF); r(gx+11,y0+7,4,3,P.glassesF); r(gx+9,y0+8,2,1,P.glassesF);
+  r(gx+6,y0+8,2,1,'#9fd8ff'); r(gx+12,y0+8,2,1,'#9fd8ff');
+  // blink
+  if(Math.floor(t/6)%40===0){r(gx+6,y0+8,2,1,P.skin);r(gx+12,y0+8,2,1,P.skin);}
+  r(gx+9,y0+12,2,1,'#c0605a');
+  // neck + shirt
+  r(gx+8,y0+14,4,2,P.skin);
+  r(gx+3,y0+16,14,14,P.shirt); r(gx+3,y0+16,2,14,P.shirt2); r(gx+9,y0+16,2,4,P.shirt2);
+  // arms (one holding pipette)
+  r(gx+1,y0+17,3,10,P.shirt); r(gx+1,y0+27,3,2,P.skin);
+  r(gx+16,y0+17,3,8,P.shirt); r(gx+17,y0+25,3,2,P.skin);
+  r(gx+19,y0+18,1,9,P.metal); r(gx+18,y0+17,3,2,P.g);
+  // pants + shoes
+  r(gx+4,y0+30,12,12,P.pants); r(gx+9,y0+34,2,8,'#0a0d13');
+  r(gx+3,y0+42,6,2,P.shirt2); r(gx+11,y0+42,6,2,P.shirt2);
+  // hair long sides
+  r(gx+2,y0+14,3,8,P.hair); r(gx+15,y0+14,3,8,P.hair);
+}
+function catSprite(cx,cy){
+  const tail=(Math.floor(t/15)%2)?0:1;
+  r(cx,cy,12,7,P.cat); r(cx+9,cy-4,7,7,P.cat);
+  r(cx+9,cy-6,2,2,P.cat); r(cx+14,cy-6,2,2,P.cat);
+  r(cx+11,cy-2,1,1,'#000'); r(cx+14,cy-2,1,1,'#000');
+  r(cx+2,cy+1,6,1,P.cat2); r(cx+2,cy+3,6,1,P.cat2);
+  r(cx-3,cy-2-tail,3,2,P.cat); r(cx-1,cy,2,3,P.cat);
+  r(cx+1,cy+7,2,2,P.cat2); r(cx+8,cy+7,2,2,P.cat2);
+}
+
+// dialog typewriter
+const tEl=document.getElementById('t');
+let full='',shown=0,timer=null;
+function say(s){
+  full=s;shown=0;clearInterval(timer);
+  timer=setInterval(()=>{shown++;render();if(shown>=full.length)clearInterval(timer);},28);
+}
+function render(){tEl.innerHTML=escapeHtml(full.slice(0,shown))+'<span class="cur"></span>';}
+function escapeHtml(s){return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+
+function at(ev){
+  const b=c.getBoundingClientRect();
+  const px=(ev.clientX-b.left)/b.width*W,py=(ev.clientY-b.top)/b.height*H;
+  return zones.find(z=>px>=z.x&&px<=z.x+z.w&&py>=z.y&&py<=z.y+z.h);
+}
+let hover=null;
+c.addEventListener('mousemove',e=>{hover=at(e)||null;c.style.cursor=hover?'pointer':'default';});
+c.addEventListener('mouseleave',()=>hover=null);
+c.addEventListener('click',e=>{
+  const z=at(e);
+  if(!z){if(shown<full.length){shown=full.length;render();clearInterval(timer);}return;}
+  idx[z.n]=((idx[z.n]??-1)+1)%z.lines.length;
+  say(z.lines[idx[z.n]]);
+});
+
+say("Welcome to my lab! Click the potentiostat, beakers, whiteboard, window, cat... or me.");
+function loop(){t++;x.clearRect(0,0,W,H);scene();requestAnimationFrame(loop);}
+loop();
+})();
+</script>
+</body>
+</html>
