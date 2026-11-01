@@ -21,7 +21,7 @@ repository               : "td2542001/dungthuyhoangto"
 #               Additional customization can be done by editing /_includes/author-profile.html
 author:
   # Biographic information
-  avatar           : "profile.png"
+  avatar           : "images/profile.png.jpg"
   name             : "To Hoang Thuy Dung"
   pronouns         : # example: "she/her"
   bio              : "M.S. researcher at Jeonbuk National University. Inorganic materials for water treatment, pollutant detection and remediation."
