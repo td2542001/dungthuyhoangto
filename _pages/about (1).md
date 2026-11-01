@@ -8,8 +8,8 @@ redirect_from:
 ---
 
 <style>
-  .ri-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px;margin:10px 0 30px}
-  .ri-card{display:block;text-decoration:none !important;border:1px solid #0a3d14;background:#000;transition:border-color .2s, transform .2s}
+  .ri-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:10px 0 30px}
+  @media (max-width:800px){.ri-grid{grid-template-columns:repeat(2,1fr)}}  .ri-card{display:block;text-decoration:none !important;border:1px solid #0a3d14;background:#000;transition:border-color .2s, transform .2s}
   .ri-card:hover{border-color:#00ff41;transform:translateY(-3px)}
   .ri-img{aspect-ratio:1/1;background:#06170b center/cover no-repeat;display:flex;align-items:center;justify-content:center;
     font-family:Consolas,"Courier New",monospace;color:#0f5a25;font-size:2.2em}
@@ -70,3 +70,9 @@ Education
 ------
 - **M.S. in Bio-Convergence Sciences**, Jeonbuk National University, South Korea *(in progress)*
 - **B.Eng. in Chemical Engineering (Inorganic Materials)**, Ton Duc Thang University, Vietnam
+
+---
+
+Thank you for visiting! If my research interests align with yours, or you would like to discuss collaborations or PhD opportunities, feel free to reach out by [email](mailto:td2542001@gmail.com) or connect with me on [LinkedIn](https://www.linkedin.com/in/tohoangthuydung/).
+
+<iframe src="{{ '/files/lab-pixel.html' | relative_url }}" style="width:100%;aspect-ratio:16/9;border:2px solid #00ff41;margin-top:16px" loading="lazy" title="Pixel lab"></iframe>
