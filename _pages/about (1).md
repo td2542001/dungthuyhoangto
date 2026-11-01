@@ -38,7 +38,7 @@ Conferences
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;margin-bottom:16px">
 <a href="{{ '/images/icas2024-poster.jpg' | relative_url }}"><img src="{{ '/images/icas2024-poster.jpg' | relative_url }}" alt="Poster presentation at ICAS-4, 2024" style="border:1px solid #0a3d14"></a>
-<a href="{{ '/images/icas2024-certificates.jpg' | relative_url }}"><img src="{{ '/images/images/icas2024-certificates.jpg' | relative_url }}" alt="Certificates of Merit, ICAS-4 2024" style="border:1px solid #0a3d14"></a>
+<a href="{{ '/images/icas2024-certificates.jpg' | relative_url }}"><img src="{{ '/images/icas2024-certificates.jpg' | relative_url }}" alt="Certificates of Merit, ICAS-4 2024" style="border:1px solid #0a3d14"></a>
 </div>
 
 - **Oct 2026** — Oral presentation (online), 11th International Halich Congress on Multidisciplinary Scientific Research: *High-entropy LDH@N-doped biochar composite electrodes for electrochemical PFHxA detection*
