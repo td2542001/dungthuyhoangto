@@ -30,9 +30,9 @@ author_profile: true
 ## Previous projects
 
 <div class="proj">
-  <h3>Photocatalytic materials and self-cleaning glass</h3>
-  <p>Semiconductor photocatalysts for pollutant degradation and self-cleaning coatings on glass.</p>
-  <span class="tag">photocatalysis</span><span class="tag">coatings</span>
+  <h3>ZnO/nanocellulose photocatalysts and self-cleaning thin films</h3>
+  <p>B.Eng. thesis (10.0/10.0): ZnO nanoparticles grown in situ on cellulose nanocrystals for adsorption and photocatalytic degradation of methylene blue, reaching 92% removal in 5 h under UV. Presented at ICAS 2024 (Poster Design Award and Oral Presentation Award). Earlier work on Sn/Si thin films for self-cleaning glass (Third Prize, Student Scientific Research Competition).</p>
+  <span class="tag">photocatalysis</span><span class="tag">nanocellulose</span><span class="tag">ZnO</span>
 </div>
 
 <div class="proj">
