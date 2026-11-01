@@ -33,6 +33,18 @@ I genuinely enjoy learning. Moving from chemical engineering to photocatalysis, 
 
 I am looking for **PhD opportunities starting in Fall 2027** in inorganic materials chemistry, especially layered and high-entropy materials, including **AI-assisted materials discovery** for environmental and energy applications.
 
+Conferences
+------
+
+<div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;align-items:start;margin-bottom:16px">
+<a href="{{ '/images/icas2024-poster.jpg' | relative_url }}"><img src="{{ '/images/icas2024-poster.jpg' | relative_url }}" alt="Poster presentation at ICAS 2024" style="border:1px solid #0a3d14"></a>
+<a href="{{ '/images/icas2024-award-poster.jpg' | relative_url }}"><img src="{{ '/images/icas2024-award-poster.jpg' | relative_url }}" alt="Poster Design Award, ICAS 2024" style="border:1px solid #0a3d14"></a>
+<a href="{{ '/images/icas2024-award-oral.jpg' | relative_url }}"><img src="{{ '/images/icas2024-award-oral.jpg' | relative_url }}" alt="Oral Presentation Award, ICAS 2024" style="border:1px solid #0a3d14"></a>
+</div>
+
+- **Oct 2026** — Oral presentation (online), 11th International Halich Congress on Multidisciplinary Scientific Research: *High-entropy LDH@N-doped biochar composite electrodes for electrochemical PFHxA detection*
+- **Jun 2024** — Poster and oral presentation, International Conference on Applied Sciences (ICAS 2024): *ZnO/nanocellulose photocatalysts*, **Poster Design Award** and **Oral Presentation Award**
+
 Research Interests
 ------
 
