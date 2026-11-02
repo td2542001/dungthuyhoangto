@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HELDH@COF 3D Model</title>
+<style>
+  :root{--bg:#000;--fg:#c8c8c8;--accent:#00ff41;--dim:#0a3d14;}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);
+    font-family:Consolas,"Courier New",monospace;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .panel{position:fixed;left:12px;top:12px;width:min(320px,calc(100% - 24px));box-sizing:border-box;
+    background:rgba(0,0,0,.78);border:1px solid var(--dim);padding:10px 12px;
+    font-size:12.5px;line-height:1.42;max-height:calc(100% - 92px);overflow-y:auto}
+  .panel h1{margin:0 0 6px;font-size:14px;color:var(--accent);font-weight:700}
+  #step{color:var(--accent);margin-top:8px}
+  .legend{position:fixed;right:12px;top:12px;background:rgba(0,0,0,.75);
+    border:1px solid var(--dim);padding:8px 10px;font-size:12px;display:none}
+  .legend b{color:var(--accent);font-weight:400;display:block;margin-top:4px}
+  .legend div{display:flex;align-items:center;gap:6px;margin:2px 0}
+  .sw{width:11px;height:11px;display:inline-block;border:1px solid #333;flex:none}
+  .sw.r{border-radius:50%}
+  .dock{position:fixed;left:0;right:0;bottom:10px;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+  .row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;pointer-events:auto}
+  .row span{font-size:12px;color:var(--accent)}
+  button{font:inherit;font-size:13px;background:#000;color:var(--accent);
+    border:1px solid var(--accent);padding:5px 11px;cursor:pointer;white-space:nowrap}
+  button:hover,button.on{background:var(--accent);color:#000}
+  .hint{position:fixed;right:12px;bottom:16px;font-size:11px;opacity:.55}
+  .lbl{position:fixed;display:none;pointer-events:none;transform:translate(14px,-50%);
+    background:rgba(0,0,0,.8);border-left:2px solid var(--accent);padding:4px 8px;
+    font-size:11.5px;line-height:1.3;width:210px;box-sizing:border-box}
+  .lbl b{color:var(--accent);font-weight:700}
+  #mech{display:none}
+  #mech ol{margin:6px 0 0;padding-left:22px}
+  #mech li{margin:4px 0;cursor:pointer;opacity:.6}
+  #mech li b{color:var(--accent);font-weight:700}
+  #mech li span{display:none}
+  #mech li.on{opacity:1}
+  #mech li.on span{display:inline}
+  #aff{margin-top:8px;padding-top:7px;border-top:1px solid var(--dim)}
+  #aff i{font-style:normal;padding:0 2px}
+  #aff i.on{background:var(--accent);color:#000}
+  #res{margin-top:5px;color:var(--accent)}
+  .note{opacity:.65;font-size:11px;margin-top:6px}
+  #err{position:fixed;inset:0;display:none;align-items:center;justify-content:center;color:var(--accent)}
+  @media (max-width:640px){
+    .legend{display:none !important}
+    .hint{display:none}
+    .panel{font-size:11.5px;max-height:44%}
+    .note{display:none}
+    button{font-size:12px;padding:4px 8px}
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div class="panel">
+  <h1>MgAlFeNiCo-HELDH@TPA-TP-COF</h1>
+  <div id="intro">Brucite-like [M(OH)<sub>6</sub>] octahedral layers sharing five cations, assembled on a porous
+  TPA-TP-COF scaffold. Interlayer anion: <span id="introAn"></span>.</div>
+  <div id="step"></div>
+  <div id="mech">
+    <b style="color:var(--accent)">How could PFHxA enter the layers?</b> (proposed)
+    <ol id="mSteps">
+      <li><b>Electrostatic attraction</b><span> &mdash; Al<sup>3+</sup> and Fe<sup>3+</sup> make the hydroxide layers positive (+). PFHxA is a strong acid, so in water it is the anion C<sub>5</sub>F<sub>11</sub>COO<sup>&minus;</sup>.</span></li>
+      <li><b>Anion exchange</b><span> &mdash; PFHxA<sup>&minus;</sup> replaces the interlayer anion while the layer charge stays balanced (1 NO<sub>3</sub><sup>&minus;</sup> or Cl<sup>&minus;</sup> &harr; 1 PFHxA<sup>&minus;</sup>; 1 CO<sub>3</sub><sup>2&minus;</sup> or SO<sub>4</sub><sup>2&minus;</sup> &harr; 2 PFHxA<sup>&minus;</sup>).</span></li>
+      <li><b>Interlayer accessibility</b><span> &mdash; a weakly held anion leaves more easily, so the gallery can open around the longer PFHxA<sup>&minus;</sup>. The COF pores help carry PFHxA to the flake edges.</span></li>
+      <li><b>Sensing signal</b><span> &mdash; PFHxA<sup>&minus;</sup> at and between the layers alters interfacial charge, read out by CV and EIS. Which anion gives the best response is the question being tested.</span></li>
+    </ol>
+    <div id="aff">Layer affinity:<br><i data-a="no3">NO<sub>3</sub><sup>&minus;</sup></i> &lt; <i data-a="cl">Cl<sup>&minus;</sup></i> &lt; <i data-a="so4">SO<sub>4</sub><sup>2&minus;</sup></i> &lt; <i data-a="co3">CO<sub>3</sub><sup>2&minus;</sup></i></div>
+    <div id="res"></div>
+    <div class="note">Working hypothesis, schematic and not to scale. Exchange amounts are illustrative, not measured.</div>
+  </div>
+</div>
+
+<div class="legend" id="legend">
+  <b>Octahedral cations</b>
+  <div><span class="sw" style="background:#8ad04a"></span>Mg</div>
+  <div><span class="sw" style="background:#b0b8c4"></span>Al</div>
+  <div><span class="sw" style="background:#e08a3c"></span>Fe</div>
+  <div><span class="sw" style="background:#3fd0c9"></span>Ni</div>
+  <div><span class="sw" style="background:#f08aa6"></span>Co</div>
+  <b>Interlayer</b>
+  <div id="legAn"></div>
+  <div><span class="sw r" style="background:#ff3b3b"></span>O</div>
+  <div><span class="sw r" style="background:#ffffff"></span><span>H (H<sub>2</sub>O)</span></div>
+  <b>PFHxA<sup>&minus;</sup></b>
+  <div><span class="sw r" style="background:#e8e86a"></span>F</div>
+  <b>COF</b>
+  <div><span class="sw r" style="background:#9a9a9a"></span>C</div>
+  <div><span class="sw r" style="background:#3a7bff"></span>N</div>
+</div>
+
+<div class="lbl" id="lblCat"><b>Cation layer (+)</b><br>[M<sup>2+</sup><sub>1&minus;x</sub>M<sup>3+</sup><sub>x</sub>(OH)<sub>2</sub>]<sup>x+</sup><br>M = Mg, Al, Fe, Ni, Co (edge-sharing octahedra)</div>
+<div class="lbl" id="lblAn"><b>Anion interlayer (&minus;)</b><br><span id="lblAnT"></span> + H<sub>2</sub>O<br>balances the positive layer charge</div>
+<div class="lbl" id="lblCof"><b>TPA-TP-COF</b><br>porous scaffold: triazine and pyridine N sites, open hexagonal channels</div>
+
+<div class="dock">
+  <div class="row" id="anionRow"><span>Interlayer anion:</span></div>
+  <div class="row">
+    <button id="next">Separate layers</button>
+    <button id="mechBtn">Mechanism</button>
+    <button id="reset">Reassemble</button>
+  </div>
+</div>
+<div class="hint">drag: rotate &middot; scroll: zoom</div>
+<div id="err">3D view needs WebGL and an internet connection.</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(function () {
+  if (typeof THREE === 'undefined') {
+    document.getElementById('err').style.display = 'flex';
+    return;
+  }
+
+  // ---------- settings ----------
+  const L = 3;              // number of hydroxide layers
+  const A = 1.0;            // in-plane lattice parameter (scaled)
+  const R = A / Math.SQRT2; // octahedron vertex distance for edge sharing
+  const DISC = 4.3;         // radius of the LDH slab
+  const Y0 = 1.5;           // first LDH layer above the COF
+  const G = 2.0;            // extra gap between separated layers
+  const COF_R = 8.2;        // radius of the visible COF sheet
+  const COF_S = 2.7;        // COF node-to-node distance (compressed, schematic)
+
+  const METALS = [0x8ad04a, 0xb0b8c4, 0xe08a3c, 0x3fd0c9, 0xf08aa6]; // Mg Al Fe Ni Co
+  const W = [1, 0.5, 0.5, 0.75, 0.75];                                // Mg:Al:Fe:Ni:Co
+
+  // n = anions per gallery (divalent anions: half as many, same total charge)
+  // ex = anions exchanged per gallery; p0/p1 = layer pitch before/after exchange
+  const ANIONS = {
+    co3: { html: 'CO<sub>3</sub><sup>2&minus;</sup>', z: 2, n: 6,  ex: 0,  p0: 2.6,  p1: 2.6,
+           leg: ['#9a9a9a', 'C (CO<sub>3</sub><sup>2&minus;</sup>)'],
+           res: 'CO<sub>3</sub><sup>2&minus;</sup>: held most strongly. Little or no exchange expected, so PFHxA<sup>&minus;</sup> stays on the outer surface and edges.' },
+    so4: { html: 'SO<sub>4</sub><sup>2&minus;</sup>', z: 2, n: 6,  ex: 2,  p0: 3.0,  p1: 3.35,
+           leg: ['#ffb020', 'S (SO<sub>4</sub><sup>2&minus;</sup>)'],
+           res: 'SO<sub>4</sub><sup>2&minus;</sup>: divalent and strongly held. Limited exchange expected; each SO<sub>4</sub><sup>2&minus;</sup> that leaves makes room for 2 PFHxA<sup>&minus;</sup>.' },
+    cl:  { html: 'Cl<sup>&minus;</sup>', z: 1, n: 12, ex: 6,  p0: 2.65, p1: 3.4,
+           leg: ['#39ff88', 'Cl<sup>&minus;</sup>'],
+           res: 'Cl<sup>&minus;</sup>: intermediate affinity. Partial exchange expected, with Cl<sup>&minus;</sup> and PFHxA<sup>&minus;</sup> sharing the gallery.' },
+    no3: { html: 'NO<sub>3</sub><sup>&minus;</sup>', z: 1, n: 12, ex: 10, p0: 3.0,  p1: 3.7,
+           leg: ['#3a7bff', 'N (NO<sub>3</sub><sup>&minus;</sup>)'],
+           res: 'NO<sub>3</sub><sup>&minus;</sup>: held most weakly. The most exchange and the widest gallery opening are expected.' }
+  };
+  const ORDER = ['co3', 'cl', 'so4', 'no3'];
+  let cur = 'co3';
+
+  const T_EX = 3.0, T_SPREAD = 2.6, T_MOVE = 1.6;   // mechanism timeline (s)
+
+  let seed = 11;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const clamp01 = t => Math.max(0, Math.min(1, t));
+  const ease = t => { t = clamp01(t); return t * t * (3 - 2 * t); };
+
+  // ---------- renderer / scene ----------
+  const canvas = document.getElementById('c');
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  } catch (e) {
+    document.getElementById('err').style.display = 'flex';
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 500);
+  camera.position.set(19, 14, 23);
+
+  const controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.autoRotate = true;
+  controls.autoRotateSpeed = 0.6;
+  controls.minDistance = 6;
+  controls.maxDistance = 70;
+  controls.target.set(0, 3.5, 0);
+  controls.addEventListener('start', () => { controls.autoRotate = false; });
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+  const key = new THREE.DirectionalLight(0xffffff, 0.85);
+  key.position.set(10, 20, 8);
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0x88ffaa, 0.3);
+  rim.position.set(-10, -6, -8);
+  scene.add(rim);
+
+  // ---------- octahedron geometry (3-fold axis along y, edges on lattice) ----------
+  const octGeo = new THREE.OctahedronGeometry(R * 0.97);
+  const q = new THREE.Quaternion().setFromUnitVectors(
+    new THREE.Vector3(1, 1, 1).normalize(), new THREE.Vector3(0, 1, 0));
+  octGeo.applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(q));
+  const v = new THREE.Vector3(R, 0, 0).applyQuaternion(q);
+  octGeo.rotateY(Math.atan2(v.z, v.x) - Math.PI / 6);
+  const edgeGeo = new THREE.EdgesGeometry(octGeo);
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x0b2a12 });
+
+  const metalMats = METALS.map(c => new THREE.MeshStandardMaterial({
+    color: c, roughness: 0.45, metalness: 0.1, flatShading: true,
+    transparent: true, opacity: 0.93
+  }));
+  const neutralMat = new THREE.MeshStandardMaterial({
+    color: 0x2fae5a, roughness: 0.45, metalness: 0.1, flatShading: true,
+    transparent: true, opacity: 0.93
+  });
+  const octMeshes = [];
+  const WS = W.reduce((a, b) => a + b, 0);
+  function pickMetal() {
+    let r = rnd() * WS;
+    for (let i = 0; i < W.length; i++) { r -= W[i]; if (r <= 0) return i; }
+    return W.length - 1;
+  }
+
+  const sites = [];
+  for (let i = -8; i <= 8; i++) {
+    for (let j = -8; j <= 8; j++) {
+      const x = A * (i + j * 0.5), z = A * (j * Math.sqrt(3) / 2);
+      if (Math.hypot(x, z) <= DISC) sites.push([x, z]);
+    }
+  }
+
+  function makeLayer() {
+    const g = new THREE.Group();
+    sites.forEach(([x, z]) => {
+      const m = new THREE.Mesh(octGeo, neutralMat);
+      m.userData.metal = pickMetal();
+      octMeshes.push(m);
+      m.position.set(x, 0, z);
+      g.add(m);
+      const e = new THREE.LineSegments(edgeGeo, edgeMat);
+      e.position.set(x, 0, z);
+      g.add(e);
+    });
+    return g;
+  }
+
+  // ---------- atoms and small ions ----------
+  const sph = new THREE.SphereGeometry(1, 16, 12);
+  const std = c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.42 });
+  const matO = std(0xff3b3b), matC = std(0x9a9a9a), matH = std(0xffffff),
+        matN = std(0x3a7bff), matS = std(0xffb020), matCl = std(0x39ff88), matF = std(0xe8e86a);
+
+  function atom(mat, r, x, y, z, parent) {
+    const m = new THREE.Mesh(sph, mat);
+    m.scale.setScalar(r);
+    m.position.set(x, y, z);
+    parent.add(m);
+  }
+
+  function makeAnion(key) {
+    const g = new THREE.Group();
+    if (key === 'cl') {
+      atom(matCl, 0.3, 0, 0, 0, g);
+    } else if (key === 'so4') {
+      atom(matS, 0.2, 0, 0, 0, g);
+      const d = 0.28;
+      [[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]].forEach(p =>
+        atom(matO, 0.17, p[0] * d, p[1] * d, p[2] * d, g));
+    } else {                                 // planar CO3 / NO3
+      atom(key === 'co3' ? matC : matN, 0.14, 0, 0, 0, g);
+      for (let k = 0; k < 3; k++) {
+        const a = k * 2 * Math.PI / 3;
+        atom(matO, 0.19, 0.42 * Math.cos(a), 0, 0.42 * Math.sin(a), g);
+      }
+    }
+    g.rotation.y = rnd() * Math.PI * 2;
+    if (key === 'so4') g.rotation.x = rnd() * Math.PI;
+    if (key === 'no3') g.rotation.x = 0.35;   // gently tilted in the wider gallery
+    return g;
+  }
+
+  function makeWater(y) {
+    const g = new THREE.Group(), rot = rnd() * Math.PI * 2;
+    atom(matO, 0.17, 0, 0, 0, g);
+    [-0.91, 0.91].forEach(d => {
+      const a = rot + d;
+      atom(matH, 0.1, 0.28 * Math.cos(a), 0.12, 0.28 * Math.sin(a), g);
+    });
+    g.position.y = y;
+    return g;
+  }
+
+  function makePFHxA() {                                 // C5F11-COO-, head at origin, tail along +y
+    const g = new THREE.Group();
+    atom(matC, 0.13, 0, 0, 0, g);
+    atom(matO, 0.17, -0.22, -0.28, 0, g);
+    atom(matO, 0.17, 0.22, -0.28, 0, g);
+    for (let i = 1; i <= 5; i++) {                       // CF2 x4 + CF3
+      const x = (i % 2 ? 0.18 : -0.18), y = 0.38 * i;
+      atom(matC, 0.13, x, y, 0, g);
+      atom(matF, 0.15, x, y, 0.32, g);
+      atom(matF, 0.15, x, y, -0.32, g);
+      if (i === 5) atom(matF, 0.15, x + (x > 0 ? 0.3 : -0.3), y + 0.15, 0, g);
+    }
+    return g;
+  }
+
+  function randomSpot(taken, minD) {
+    for (let t = 0; t < 300; t++) {
+      const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * (DISC - 0.6);
+      const x = r * Math.cos(a), z = r * Math.sin(a);
+      if (taken.every(p => Math.hypot(p[0] - x, p[1] - z) > minD)) {
+        taken.push([x, z]);
+        return [x, z];
+      }
+    }
+    return null;
+  }
+
+  // ---------- TPA-TP-COF: two AA-stacked honeycomb sheets ----------
+  const pores = [];
+  function makeCOF() {
+    const g = new THREE.Group();
+    const S = COF_S, a = S * Math.sqrt(3);
+    const atoms = [], bonds = [];
+    const add = (x, z, t) => { atoms.push({ x, z, t }); return atoms.length - 1; };
+    const ring = (cx, cz, r, start, type) => {
+      const ids = [];
+      for (let m = 0; m < 6; m++) {
+        const th = start + m * Math.PI / 3;
+        ids.push(add(cx + r * Math.cos(th), cz + r * Math.sin(th), type(m)));
+      }
+      ids.forEach((id, m) => bonds.push([id, ids[(m + 1) % 6]]));
+      return ids;
+    };
+    const nodesA = [], nodesB = [];
+    const ang = [Math.PI / 2, Math.PI * 7 / 6, Math.PI * 11 / 6];   // A -> B directions
+    for (let i = -6; i <= 6; i++) {
+      for (let j = -6; j <= 6; j++) {
+        const x = i * a + j * a / 2, z = j * a * Math.sqrt(3) / 2;
+        if (Math.hypot(x, z) <= COF_R) nodesA.push([x, z]);
+        if (Math.hypot(x, z + S) <= COF_R) nodesB.push([x, z + S]);
+        const pr = Math.hypot(x, z - S);
+        if (pr > DISC + 0.9 && pr < COF_R - 1.2) pores.push([x, z - S]);
+      }
+    }
+    const bKey = (x, z) => x.toFixed(2) + ',' + z.toFixed(2);
+    const bMap = {};
+    nodesB.forEach(([x, z]) => {
+      const ids = ring(x, z, 0.38, -Math.PI / 2, () => 'C');        // TP: phloroglucinol-derived ring
+      bMap[bKey(x, z)] = ids;
+      ids.forEach((id, m) => {
+        if (m % 2 === 1) {                                           // keto O on alternating carbons
+          const p = atoms[id], k = 0.68 / 0.38;
+          bonds.push([id, add(x + (p.x - x) * k, z + (p.z - z) * k, 'O')]);
+        }
+      });
+    });
+    nodesA.forEach(([x, z]) => {
+      const ids = ring(x, z, 0.38, Math.PI / 2, m => (m % 2 ? 'N' : 'C')); // TPA: triazine core
+      ang.forEach((th, n) => {
+        const ux = Math.cos(th), uz = Math.sin(th);
+        const key = bKey(x + S * ux, z + S * uz), tp = bMap[key];
+        if (!tp) return;
+        const cx = x + 1.02 * ux, cz = z + 1.02 * uz;
+        const py = ring(cx, cz, 0.36, th + Math.PI, m => (m === 2 ? 'N' : 'C'));  // pyridine arm
+        bonds.push([ids[n * 2], py[0]]);
+        const nh = add(x + 1.63 * ux, z + 1.63 * uz, 'N');
+        const ch = add(x + 1.95 * ux, z + 1.95 * uz, 'C');
+        bonds.push([py[3], nh], [nh, ch]);
+        let best = tp[0], bd = 1e9;                                  // nearest ring carbon of TP
+        tp.forEach((id, m) => {
+          if (m % 2) return;
+          const d = Math.hypot(atoms[id].x - atoms[ch].x, atoms[id].z - atoms[ch].z);
+          if (d < bd) { bd = d; best = id; }
+        });
+        bonds.push([ch, best]);
+      });
+    });
+
+    const COL = { C: 0x9a9a9a, N: 0x3a7bff, O: 0xff3b3b };
+    const sheets = [0, -0.75];
+    const inst = new THREE.InstancedMesh(sph, new THREE.MeshStandardMaterial({ roughness: 0.5 }), atoms.length * sheets.length);
+    const mtx = new THREE.Matrix4(), col = new THREE.Color(), seg = [];
+    let n = 0;
+    sheets.forEach(y => {
+      atoms.forEach(p => {
+        const r = p.t === 'C' ? 0.095 : 0.115;
+        mtx.makeScale(r, r, r).setPosition(p.x, y, p.z);
+        inst.setMatrixAt(n, mtx);
+        inst.setColorAt(n, col.setHex(COL[p.t]));
+        n++;
+      });
+      bonds.forEach(([u, w]) => seg.push(
+        new THREE.Vector3(atoms[u].x, y, atoms[u].z),
+        new THREE.Vector3(atoms[w].x, y, atoms[w].z)));
+    });
+    g.add(inst);
+    g.add(new THREE.LineSegments(
+      new THREE.BufferGeometry().setFromPoints(seg),
+      new THREE.LineBasicMaterial({ color: 0x6a6a6a })));
+    return g;
+  }
+  scene.add(makeCOF());
+
+  // ---------- LDH stack ----------
+  const layers = [], galleries = [];
+  for (let i = 0; i < L; i++) {
+    const g = makeLayer();
+    scene.add(g);
+    layers.push(g);
+  }
+  for (let i = 0; i < L - 1; i++) {
+    const g = new THREE.Group();
+    scene.add(g);
+    galleries.push(g);
+  }
+
+  // "+" markers for the positive layer charge
+  const plusTex = (function () {
+    const c = document.createElement('canvas'); c.width = c.height = 64;
+    const x = c.getContext('2d');
+    x.strokeStyle = '#00ff41'; x.lineWidth = 12; x.lineCap = 'round';
+    x.beginPath(); x.moveTo(32, 12); x.lineTo(32, 52); x.moveTo(12, 32); x.lineTo(52, 32); x.stroke();
+    return new THREE.CanvasTexture(c);
+  })();
+  const plusMat = new THREE.SpriteMaterial({ map: plusTex, transparent: true, depthTest: false });
+  const plusses = [];
+  layers.forEach((g, i) => {
+    for (let n = 0; n < 10; n++) {
+      const s = new THREE.Sprite(plusMat), a = (n + i / 3) * 2 * Math.PI / 10;
+      s.scale.setScalar(0.42);
+      s.position.set((DISC + 0.45) * Math.cos(a), 0, (DISC + 0.45) * Math.sin(a));
+      s.visible = false;
+      g.add(s);
+      plusses.push(s);
+    }
+  });
+
+  // ---------- mechanism actors ----------
+  let leaving = [], entering = [];
+  const Y_AXIS = new THREE.Vector3(0, 1, 0);
+
+  function fillGallery(g, idx, key) {
+    while (g.children.length) g.remove(g.children[0]);
+    seed = 101 + idx * 37 + ORDER.indexOf(key) * 13;
+    const def = ANIONS[key], taken = [], spots = [];
+    const free = def.p1 - 0.85;
+    for (let n = 0; n < def.n; n++) {
+      const s = randomSpot(taken, def.z === 2 ? 1.5 : 0.98); if (!s) break;
+      const m = makeAnion(key);
+      m.position.set(s[0], 0, s[1]);
+      m.userData.home = new THREE.Vector3(s[0], 0, s[1]);
+      g.add(m);
+      spots.push(m);
+    }
+    for (let n = 0; n < 6; n++) {
+      const s = randomSpot(taken, 0.8); if (!s) break;
+      const w = makeWater((rnd() - 0.5) * 0.5);
+      w.position.x = s[0]; w.position.z = s[1];
+      g.add(w);
+    }
+
+    // charge balance: one divalent anion makes room for two PFHxA-
+    const steps = Math.max(1, def.ex * 2 - 1);
+    for (let n = 0; n < def.ex; n++) {
+      const an = spots[n]; if (!an) break;
+      const start = T_EX + idx * 0.25 + T_SPREAD * n / Math.max(1, def.ex);
+      an.userData.t0 = start;
+      leaving.push(an);
+      for (let c = 0; c < def.z; c++) {
+        const h = an.userData.home;
+        const off = def.z === 2 ? (c ? 0.42 : -0.42) : 0;
+        const a = Math.atan2(h.z, h.x) + Math.PI / 2;
+        const sx = h.x + off * Math.cos(a), sz = h.z + off * Math.sin(a);
+        const dir = new THREE.Vector3(h.x, 0, h.z);
+        if (dir.length() < 0.2) dir.set(1, 0, 0.3);
+        dir.normalize();
+        const head = (n + c) % 2 ? 1 : -1;
+        const m = makePFHxA();
+        m.visible = false;
+        const reach = 2.0;
+        const tilt = Math.acos(Math.min(1, (free - 0.9) / reach)) + (rnd() - 0.5) * 0.35;
+        const axis = new THREE.Vector3(Math.cos(a), 0, Math.sin(a));
+        const qF = new THREE.Quaternion().setFromAxisAngle(axis, tilt);
+        if (head < 0) qF.premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(Math.cos(a + 1), 0, Math.sin(a + 1)), Math.PI));
+        m.userData = {
+          P0: new THREE.Vector3(dir.x * (DISC + 3.2), 5 + rnd() * 2.5 - idx * 2.4, dir.z * (DISC + 3.2)),
+          P1: new THREE.Vector3(dir.x * (DISC + 1.0), (rnd() - 0.5) * 0.2, dir.z * (DISC + 1.0)),
+          P2: new THREE.Vector3(sx, head * (-free / 2 + 0.42), sz),
+          qT: new THREE.Quaternion().setFromUnitVectors(Y_AXIS, dir),
+          qF, tA: 0.1 + rnd() * 1.2, tB: start + c * 0.2 + 0.3
+        };
+        g.add(m);
+        entering.push(m);
+      }
+    }
+  }
+
+  const surface = [], inPores = [];
+  (function () {
+    seed = 77;
+    const spots = [];
+    for (let n = 0; n < 7; n++) {
+      const s = randomSpot(spots, 1.25); if (!s) break;
+      const m = makePFHxA();
+      m.userData = { tA: 0.2 + n * 0.18, x: s[0], z: s[1] };
+      m.rotation.y = rnd() * Math.PI * 2;
+      m.visible = false;
+      layers[L - 1].add(m);
+      surface.push(m);
+    }
+    const step = Math.max(1, Math.floor(pores.length / 4));
+    for (let n = 0; n < 4 && n * step < pores.length; n++) {
+      const p = pores[n * step], m = makePFHxA();
+      m.userData = { tA: 0.6 + n * 0.3, x: p[0] + 0.3, z: p[1] - 0.2 };
+      m.rotation.y = rnd() * Math.PI * 2;
+      m.rotation.x = 0.25;
+      m.visible = false;
+      scene.add(m);
+      inPores.push(m);
+    }
+  })();
+
+  function selectAnion(key) {
+    cur = key;
+    leaving = []; entering = [];
+    galleries.forEach((g, i) => fillGallery(g, i, key));
+    pitch = ANIONS[key].p0;
+    mechT = 0; manualStep = false;
+    document.querySelectorAll('#anionRow button').forEach(b => b.classList.toggle('on', b.dataset.a === key));
+    update();
+  }
+
+  function restoreActors() {
+    leaving.forEach(m => { m.visible = true; m.scale.setScalar(1); m.position.copy(m.userData.home); });
+    entering.forEach(m => { m.visible = false; });
+    surface.concat(inPores).forEach(m => { m.visible = false; });
+  }
+
+  // ---------- step logic ----------
+  // k: 0 = intact, 1 = layers separated, 2 = ions identified
+  let k = 0, mech = false, mechT = 0, pitch = ANIONS[cur].p0, manualStep = false;
+  const $ = id => document.getElementById(id);
+  const mechEl = $('mech'), mechBtn = $('mechBtn'), stepEl = $('step'), nextBtn = $('next'), legendEl = $('legend');
+  const liEls = Array.from(document.querySelectorAll('#mSteps li'));
+  const labels = [
+    { el: $('lblCat'), at: () => new THREE.Vector3(DISC * 0.85, layers[L - 1].position.y, 0) },
+    { el: $('lblAn'),  at: () => new THREE.Vector3(DISC * 0.85, galleries[L - 2].position.y, 0) },
+    { el: $('lblCof'), at: () => new THREE.Vector3(DISC * 1.2, 0, 0) }
+  ];
+
+  function setStep(i) { liEls.forEach((li, n) => li.classList.toggle('on', n === i)); }
+
+  function update() {
+    const colored = k === 2 || mech, def = ANIONS[cur];
+    octMeshes.forEach(m => { m.material = colored ? metalMats[m.userData.metal] : neutralMat; });
+    restoreActors();
+    if (!mech) pitch = def.p0;
+    plusses.forEach(s => { s.visible = mech; });
+    mechEl.style.display = mech ? 'block' : 'none';
+    stepEl.style.display = mech ? 'none' : 'block';
+    $('intro').style.display = mech ? 'none' : 'block';
+    $('introAn').innerHTML = def.html;
+    $('lblAnT').innerHTML = def.html;
+    $('legAn').innerHTML = '<span class="sw r" style="background:' + def.leg[0] + '"></span><span>' + def.leg[1] + '</span>';
+    $('res').innerHTML = def.res;
+    document.querySelectorAll('#aff i').forEach(i => i.classList.toggle('on', i.dataset.a === cur));
+    $('reset').style.display = (k === 1 && !mech) ? 'inline-block' : 'none';
+    mechBtn.classList.toggle('on', mech);
+    if (mech) setStep(0);
+    stepEl.textContent = [
+      'Step 1/3: intact composite. Pick an anion below, or press Mechanism.',
+      'Step 2/3: cation layers and anion interlayers separated.',
+      'Step 3/3: cations and anions identified.'
+    ][k];
+    nextBtn.textContent = mech ? 'Back to model' : ['Separate layers', 'Identify ions', 'Reassemble'][k];
+    legendEl.style.display = colored ? 'block' : 'none';
+    labels.forEach(l => { l.el.style.display = (k === 2 && !mech) ? 'block' : 'none'; });
+  }
+
+  function advance() { if (mech) { mech = false; } else { k = (k + 1) % 3; } update(); }
+  function reset() { k = 0; mech = false; update(); }
+
+  mechBtn.addEventListener('click', () => { mech = !mech; mechT = 0; manualStep = false; update(); });
+  nextBtn.addEventListener('click', advance);
+  $('reset').addEventListener('click', reset);
+  liEls.forEach((li, n) => li.addEventListener('click', () => { manualStep = true; setStep(n); }));
+
+  ORDER.forEach(key => {
+    const b = document.createElement('button');
+    b.innerHTML = ANIONS[key].html;
+    b.dataset.a = key;
+    b.addEventListener('click', () => selectAnion(key));
+    $('anionRow').appendChild(b);
+  });
+
+  let down = null;
+  canvas.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+  canvas.addEventListener('pointerup', e => {
+    if (!down) return;
+    const dx = e.clientX - down[0], dy = e.clientY - down[1];
+    down = null;
+    if (dx * dx + dy * dy < 25) advance();
+  });
+
+  // ---------- mechanism animation ----------
+  function animateMech() {
+    const t = mechT;
+    surface.forEach(m => {
+      if (t < m.userData.tA) return;
+      m.visible = true;
+      const e = ease((t - m.userData.tA) / 1.5);
+      m.position.set(m.userData.x, 7 + (0.72 - 7) * e, m.userData.z);
+    });
+    inPores.forEach(m => {
+      if (t < m.userData.tA) return;
+      m.visible = true;
+      const e = ease((t - m.userData.tA) / 1.8);
+      m.position.set(m.userData.x, 10 + (-0.2 - 10) * e, m.userData.z);
+    });
+    entering.forEach(m => {
+      const u = m.userData;
+      if (t < u.tA) return;
+      m.visible = true;
+      if (t < u.tB) {
+        m.position.lerpVectors(u.P0, u.P1, ease((t - u.tA) / 1.4));
+        m.quaternion.copy(u.qT);
+      } else {
+        const e = ease((t - u.tB) / T_MOVE);
+        m.position.lerpVectors(u.P1, u.P2, e);
+        m.quaternion.copy(u.qT).slerp(u.qF, ease((e - 0.6) / 0.4));
+      }
+    });
+    leaving.forEach(m => {
+      const u = m.userData, s = t - u.t0;
+      if (s < 0) return;
+      const dir = u.home.clone().setY(0).normalize();
+      const edge = dir.clone().multiplyScalar(DISC + 1.0);
+      if (s < 1.2) {
+        m.position.lerpVectors(u.home, edge, ease(s / 1.2));
+      } else if (s < 2.6) {
+        const e = ease((s - 1.2) / 1.4);
+        m.position.set(edge.x + dir.x * 2 * e, 4 * e, edge.z + dir.z * 2 * e);
+        m.scale.setScalar(1 - 0.5 * e);
+      } else {
+        m.visible = false;
+      }
+    });
+    const def = ANIONS[cur];
+    pitch = def.p0 + (def.p1 - def.p0) * ease((t - T_EX) / (T_SPREAD + T_MOVE));
+    if (!manualStep) setStep(t < T_EX ? 0 : t < T_EX + 2 ? 1 : t < T_EX + T_SPREAD + T_MOVE ? 2 : 3);
+  }
+
+  // ---------- layout + loop ----------
+  function layout() {
+    const split = k >= 1 && !mech;
+    layers.forEach((g, i) => { g.userData.target = Y0 + i * pitch + (split ? G * (i + 1) : 0); });
+    galleries.forEach((g, i) => { g.userData.target = Y0 + i * pitch + pitch / 2 + (split ? G * (i + 1) + G / 2 : 0); });
+  }
+
+  function resize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov = w / h < 1 ? 62 : 40;
+    if (w > 760) camera.setViewOffset(w, h, -Math.min(120, w * 0.12), 0, w, h);
+    else camera.setViewOffset(w, h, 0, -h * 0.13, w, h);
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  selectAnion('co3');
+  layers.concat(galleries).forEach(g => { layout(); g.position.y = g.userData.target; });
+
+  const all = layers.concat(galleries), clock = new THREE.Clock();
+  function loop() {
+    const dt = Math.min(clock.getDelta(), 0.1);
+    if (mech) { mechT += dt; animateMech(); }
+    layout();
+    let top = 0;
+    all.forEach(g => {
+      g.position.y += (g.userData.target - g.position.y) * 0.1;
+      top = Math.max(top, g.position.y);
+    });
+    controls.target.y += (top / 2 - controls.target.y) * 0.05;
+    controls.update();
+    if (k === 2 && !mech) {
+      // keep labels clear of the legend and of each other
+      const W_ = window.innerWidth, H_ = window.innerHeight, maxX = W_ - (W_ > 640 ? 390 : 230);
+      const placed = labels.map(l => {
+        const p = l.at().project(camera);
+        return { el: l.el, x: (p.x + 1) / 2 * W_, y: (1 - p.y) / 2 * H_ };
+      }).sort((a, b) => a.y - b.y);
+      let y = 48;
+      placed.forEach(o => {
+        y = Math.max(o.y, y);
+        o.el.style.left = Math.min(o.x, maxX) + 'px';
+        o.el.style.top = y + 'px';
+        y += 84;
+      });
+    }
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>
